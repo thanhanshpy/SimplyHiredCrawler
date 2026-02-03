@@ -31,12 +31,29 @@ def get_unique_output_path(base_path):
         counter += 1
 
 
+def get_app_dir():
+    if getattr(sys, 'frozen', False):
+        return os.path.dirname(sys.executable)
+    return os.path.dirname(os.path.abspath(__file__))
+
 # ---------- CLI ----------
 parser = argparse.ArgumentParser()
-parser.add_argument("--job", required=True, help="Job title to search")
+parser.add_argument("--job", help="Job title to search")
 parser.add_argument("--pages", type=int, default=5)
 parser.add_argument("--location", help="Job location (optional)")
 args = parser.parse_args()
+if not args.job:
+    print("🔍 SimplyHired Job Crawler\n")
+
+    args.job = input("Enter job title (required): ").strip()
+    while not args.job:
+        args.job = input("Job title cannot be empty. Enter job title: ").strip()
+
+    pages = input("Number of pages to crawl (default 5): ").strip()
+    args.pages = int(pages) if pages.isdigit() else 5
+
+    loc = input("Enter location (optional, press Enter to skip): ").strip()
+    args.location = loc if loc else None
 
 
 JOB_TITLE = args.job
@@ -57,7 +74,9 @@ else:
 safe_title = JOB_TITLE.lower().replace(" ", "_")
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 BASE_OUTPUT = os.path.join(BASE_DIR, f"{safe_title}_jobs.csv")
-OUTPUT_FILE = get_unique_output_path(BASE_OUTPUT)
+APP_DIR = get_app_dir()
+BASE_CSV = os.path.join(APP_DIR, f"{safe_title}_jobs.csv")
+OUTPUT_FILE = get_unique_output_path(BASE_CSV)
 
 
 def handle_exit(signum, frame):
@@ -259,7 +278,7 @@ def crawl():
     current_page = 1
 
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=False)
+        browser = p.chromium.launch(headless=False, channel="chrome")
         page = browser.new_page()
         page.goto(BASE_URL)
 
