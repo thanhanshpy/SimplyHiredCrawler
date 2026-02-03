@@ -1,0 +1,15 @@
+Mở folder chứa content.py
+chuột phải -> chọn "open in terminal"
+gõ python content.py --job "jobtitle" --pages xx --location "abc"
+- jobtitle: tên công việc, từ khóa liên quan đến công việc
+- xx: số trang muốn quét dữ liệu
+- abc: địa điểm tìm việc (tùy chọn, có thể có hoặc không)
+ví dụ1: python content.py --job "software engineer" --pages 3
+ví dụ2: python content.py --job "software engineer" --pages 3 --location "newyork"
+enter -> cửa sổ trình duyệt hiện ra -> code tự đọc dữ liệu -> quay lại cửa sổ terminal ->
+code sẽ hỏi có muốn chọn bộ lọc hay không ? có thể có hoặc không, nếu có sẽ có tùy chọn cho mỗi
+bộ lọc -> sau khi trả lời hết 4 câu hỏi, code tự động quét dữ liệu
+terminal sẽ hiện:
+✅ Exported xx jobs to D:\SimplyHiredCrawler\driver_jobs.csv
+file csv ở cùng vị trí với content.py
+code tự động xác định số trang tối đa mà web có, nếu số trang muốn quét dữ liệu nhiều hơn số trang web có thì code tự động quét toàn bộ trang có thể 
