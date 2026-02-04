@@ -79,10 +79,23 @@ BASE_CSV = os.path.join(APP_DIR, f"{safe_title}_jobs.csv")
 OUTPUT_FILE = get_unique_output_path(BASE_CSV)
 
 
-def handle_exit(signum, frame):
-    print("\n[!] stop crawling, exporting CSV...")
+def handle_exit(signum=None, frame=None, message=None):
+    if message:
+        print(message)
+    else:
+        print("\n[!] stop crawling, exporting CSV...")
+
     if jobs:
         export_csv(jobs)
+    else:
+        print("[INFO] No jobs to export.")
+
+    if getattr(sys, 'frozen', False):
+        print("\n🕒 Closing in 10 seconds...")
+        for i in range(10, 0, -1):
+            print(f"   {i}...", end="\r", flush=True)
+            time.sleep(1)
+
     sys.exit(0)
 
 signal.signal(signal.SIGINT, handle_exit)
@@ -294,11 +307,11 @@ def crawl():
 
         if check_404_page(page):
             browser.close()
-            return
+            handle_exit("❌ SimplyHired returned a 404 error. Try again later.")
         
         if check_no_results(page, JOB_TITLE, LOCATION):
             browser.close()
-            return
+            handle_exit(f"⚠️ No jobs found for '{JOB_TITLE}'" + (f" in '{LOCATION}'." if LOCATION else "."))
         
         time.sleep(2)
         
@@ -325,22 +338,22 @@ def crawl():
 
             if check_404_page(page):
                 browser.close()
-                return
+                handle_exit("❌ SimplyHired returned a 404 error. Try again later.")
             
             if check_no_results(page, JOB_TITLE, LOCATION):
                 browser.close()
-                return
+                handle_exit(f"⚠️ No jobs found for '{JOB_TITLE}'" + (f" in '{LOCATION}'." if LOCATION else "."))
 
         while current_page <= MAX_PAGES:
             print(f"[+] Crawling page {current_page}")
 
             if check_404_page(page):
                 browser.close()
-                return
+                handle_exit("❌ SimplyHired returned a 404 error. Try again later.")
             
             if check_no_results(page, JOB_TITLE, LOCATION):
                 browser.close()
-                return
+                handle_exit(f"⚠️ No jobs found for '{JOB_TITLE}'" + (f" in '{LOCATION}'." if LOCATION else "."))
             
             page.wait_for_selector(
                 '[data-testid="searchSerpJob"]', 
@@ -468,5 +481,4 @@ def export_csv(jobs):
 try: 
     crawl()
 finally:
-    print("[DEBUG] jobs length:", len(jobs))
-    export_csv(jobs)
+    handle_exit(message="✅ Crawling finished.")
