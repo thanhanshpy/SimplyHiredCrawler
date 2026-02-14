@@ -391,6 +391,12 @@ def crawl():
                 )
                 salary = salary.inner_text().strip() if salary else "N/A"
 
+                quick_apply = (
+                    card.query_selector("span.QuickApply")
+                    or card.query_selector('[data-testid="searchSerpJobQuickApply"]')
+                )
+                quick_apply = quick_apply.inner_text().strip() if quick_apply else "apply_now"
+
                 fingerprint = f"{company}{title}{location}".lower().replace(" ", "")
                 if fingerprint in fingerprints:
                     continue
@@ -404,6 +410,7 @@ def crawl():
                     "link": link,
                     "salary": salary,
                     "location": location,
+                    "quick_apply": quick_apply,
                     "distance": filter_meta["distance"],
                     "job_type": filter_meta["job_type"],
                     "date_added": filter_meta["date_added"],
@@ -452,6 +459,7 @@ def export_csv(jobs):
             "Job Title", 
             "Link", 
             "Salary", 
+            "Quick Apply/Apply Now",
             "Location", 
             "distance",
             "job_type",
@@ -467,6 +475,7 @@ def export_csv(jobs):
                 j["title"],
                 j["link"],
                 j["salary"],
+                j["quick_apply"],
                 j["location"],
                 j["distance"],
                 j["job_type"],
